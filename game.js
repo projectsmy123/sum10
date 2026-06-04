@@ -2,6 +2,7 @@
   'use strict';
 
   const STORAGE_KEY = 'additionOf10LeaderboardDomV5';
+  const PERSONAL_BEST_KEY = 'additionOf10PersonalBestV1';
   const FIREBASE_CONFIG = {
     apiKey: "AIzaSyDSs10zLdUvYiLm5wxxiPJjkCUXAOmtmJc",
     authDomain: "addition-of-10-game.firebaseapp.com",
@@ -23,12 +24,12 @@
   ];
 
   const AVATARS = [
-    { key: 'boy-red-sunglasses', label: 'Hero Boy', src: 'assets/avatars/boy-red-sunglasses.png', type: 'boy' },
-    { key: 'boy-yellow-hoodie', label: 'Nitro Boy', src: 'assets/avatars/boy-yellow-hoodie.png', type: 'boy' },
-    { key: 'boy-blue-sunglasses', label: 'Star Hero', src: 'assets/avatars/boy-blue-sunglasses.png', type: 'boy' },
-    { key: 'girl-pink-dress', label: 'Sky Girl', src: 'assets/avatars/girl-pink-dress.png', type: 'girl' },
-    { key: 'girl-blue-dress', label: 'Magic Girl', src: 'assets/avatars/girl-blue-dress.png', type: 'girl' },
-    { key: 'girl-starry-outfit', label: 'Heart Heroine', src: 'assets/avatars/girl-starry-outfit.png', type: 'girl' }
+    { key: 'boy-red-sunglasses', label: 'Newton', src: 'assets/avatars/boy-red-sunglasses.png', type: 'boy' },
+    { key: 'boy-yellow-hoodie', label: 'Pythagoras', src: 'assets/avatars/boy-yellow-hoodie.png', type: 'boy' },
+    { key: 'boy-blue-sunglasses', label: 'Euclid', src: 'assets/avatars/boy-blue-sunglasses.png', type: 'boy' },
+    { key: 'girl-pink-dress', label: 'Sophie', src: 'assets/avatars/girl-pink-dress.png', type: 'girl' },
+    { key: 'girl-blue-dress', label: 'Emmy', src: 'assets/avatars/girl-blue-dress.png', type: 'girl' },
+    { key: 'girl-starry-outfit', label: 'Maria', src: 'assets/avatars/girl-starry-outfit.png', type: 'girl' }
   ];
 
   const screens = {
@@ -59,14 +60,21 @@
     centerMessage: document.getElementById('center-message'),
     score: document.getElementById('score-value'),
     level: document.getElementById('level-value'),
+    combo: document.getElementById('combo-value'),
+    best: document.getElementById('best-value'),
     misses: document.getElementById('misses-value'),
     mistakes: document.getElementById('mistakes-value'),
     leftDino: document.getElementById('left-dino'),
     rightDino: document.getElementById('right-dino'),
     avatarCursor: document.getElementById('avatar-cursor'),
     finalScore: document.getElementById('final-score'),
+    finalResultMessage: document.getElementById('final-result-message'),
     finalAvatar: document.getElementById('final-avatar'),
     achievements: document.getElementById('achievement-list'),
+    shareScore: document.getElementById('share-score-button'),
+    downloadCard: document.getElementById('download-card-button'),
+    copyChallenge: document.getElementById('copy-challenge-button'),
+    shareStatus: document.getElementById('share-status'),
     playAgain: document.getElementById('play-again-button')
   };
 
@@ -99,6 +107,9 @@
     heroDashTimer: 0,
     prevCursorX: 0,
     prevCursorY: 0,
+    personalBest: 0,
+    newPersonalBest: false,
+    lastShareText: '',
     firebaseReady: false,
     firebaseError: '',
     db: null,
@@ -175,6 +186,7 @@
       els.bondList.appendChild(chip);
     });
   }
+
 
   function isFirebaseConfigReady() {
     return Boolean(
@@ -321,7 +333,7 @@
       const empty = document.createElement('div');
       empty.className = 'empty-leaderboard';
       empty.textContent = state.firebaseReady
-        ? 'No online scores yet. Be the first champion!'
+        ? 'No scores yet. Be the first champion!'
         : 'No local scores yet. Be the first champion!';
       container.appendChild(empty);
       return;
@@ -347,9 +359,35 @@
     }
   }
 
+
+  function getPersonalBest() {
+    const value = Number(localStorage.getItem(PERSONAL_BEST_KEY) || 0);
+    return Number.isFinite(value) ? value : 0;
+  }
+
+  function savePersonalBest(score) {
+    const current = getPersonalBest();
+    if (score > current) {
+      localStorage.setItem(PERSONAL_BEST_KEY, String(score));
+      state.personalBest = score;
+      state.newPersonalBest = true;
+      return true;
+    }
+    state.personalBest = current;
+    state.newPersonalBest = false;
+    return false;
+  }
+
+  function getNextTarget(score) {
+    const steps = [5000, 10000, 20000, 30000, 50000, 75000, 100000, 150000, 200000, 300000];
+    return steps.find(step => score < step) || (Math.ceil((score + 1) / 100000) * 100000);
+  }
+
   function updateHUD() {
     els.score.textContent = state.score.toLocaleString();
     els.level.textContent = String(state.level);
+    if (els.combo) els.combo.textContent = String(state.combo);
+    if (els.best) els.best.textContent = Number(state.personalBest || 0).toLocaleString();
     els.misses.textContent = iconMeter(state.misses, '🦖');
     els.mistakes.textContent = iconMeter(state.mistakes, '💔');
   }
@@ -476,6 +514,8 @@
     state.correctQueue = [];
     state.lastPraiseAt = 0;
     state.lastDinoVoiceAt = 0;
+    state.personalBest = getPersonalBest();
+    state.newPersonalBest = false;
     state.cursorX = 0;
     state.cursorY = 0;
     state.prevCursorX = 0;
@@ -508,7 +548,10 @@
     if (newLevel !== state.level) {
       state.level = newLevel;
       updateHUD();
-      showCenterMessage(`Level ${state.level}!`, 1000);
+      showCenterMessage(`Level ${state.level}!`, 1200);
+      createLevelUpBurst();
+      flashScreen('level');
+      playTone('correct');
     }
 
     state.spawnTimer += dt * 1000;
@@ -716,13 +759,21 @@
 
     createHearts(x, y);
     createSparkles(x, y);
+    createCandyBurst(x, y);
+    createPraiseBadge(x, y);
     createFloatingText(`+${earned}`, x, y - 10);
+    flashScreen('good');
+    pulseWorld('good');
     playTone('correct');
     updateHUD();
 
     if (state.combo === 3) showCenterMessage('Combo x3!', 900);
     if (state.combo === 5) showCenterMessage('Math Hero!', 900);
     if (state.combo === 10) showCenterMessage('Super Star!', 1000);
+    if (state.combo > 0 && state.combo % 15 === 0) {
+      showCenterMessage(`Mega Combo x${state.combo}!`, 1100);
+      createLevelUpBurst();
+    }
 
     speak(`Well done ${state.player.name}`, { kind: 'praise', rate: 1.04, pitch: 1.28 });
   }
@@ -732,6 +783,9 @@
     state.mistakes += 1;
 
     createThumbsDown(x, y);
+    createFloatingText('Find 10!', x, y - 8);
+    flashScreen('bad');
+    pulseWorld('bad');
     playTone('wrong');
     updateHUD();
 
@@ -761,6 +815,9 @@
     window.setTimeout(() => safeRemove(balloon.el), 620);
 
     startDinoChew(dino, mouth.x, mouth.y);
+    createFloatingText('Dino ate a 10!', mouth.x, mouth.y - 20);
+    flashScreen('bad');
+    pulseWorld('bad');
 
     if (state.misses >= MAX_MISSES) {
       window.setTimeout(endGame, 720);
@@ -936,6 +993,72 @@
     window.setTimeout(() => safeRemove(node), 420);
   }
 
+
+  function createCandyBurst(x, y) {
+    const candies = ['🍬', '🍭', '🍫', '🧁', '✨', '⭐', '🌈', '💫'];
+    candies.forEach((text, index) => {
+      const node = document.createElement('div');
+      node.className = 'candy-burst';
+      node.textContent = text;
+      node.style.left = `${x}px`;
+      node.style.top = `${y}px`;
+      node.style.setProperty('--dx', `${randomInt(-145, 145)}px`);
+      node.style.setProperty('--dy', `${randomInt(-155, 45)}px`);
+      node.style.setProperty('--rot', `${randomInt(-220, 220)}deg`);
+      node.style.animationDelay = `${index * 20}ms`;
+      els.effectLayer.appendChild(node);
+      window.setTimeout(() => safeRemove(node), 1100);
+    });
+  }
+
+  function createPraiseBadge(x, y) {
+    const options = ['Great!', 'Super!', 'Math Star!', 'Nice!', 'Wow!'];
+    const node = document.createElement('div');
+    node.className = 'praise-badge';
+    node.textContent = options[Math.floor(Math.random() * options.length)];
+    node.style.left = `${x}px`;
+    node.style.top = `${y - 52}px`;
+    els.effectLayer.appendChild(node);
+    window.setTimeout(() => safeRemove(node), 1050);
+  }
+
+  function createLevelUpBurst() {
+    const width = els.world.clientWidth || window.innerWidth;
+    const height = els.world.clientHeight || window.innerHeight;
+    for (let i = 0; i < 22; i += 1) {
+      const node = document.createElement('div');
+      node.className = 'level-confetti';
+      node.textContent = ['🎉', '✨', '⭐', '🌟', '🍬'][i % 5];
+      node.style.left = `${randomInt(20, Math.max(40, width - 20))}px`;
+      node.style.top = `${randomInt(110, Math.max(130, Math.floor(height * 0.45)))}px`;
+      node.style.setProperty('--dx', `${randomInt(-120, 120)}px`);
+      node.style.setProperty('--dy', `${randomInt(70, 180)}px`);
+      node.style.setProperty('--rot', `${randomInt(-260, 260)}deg`);
+      node.style.animationDelay = `${i * 18}ms`;
+      els.effectLayer.appendChild(node);
+      window.setTimeout(() => safeRemove(node), 1250);
+    }
+  }
+
+  function flashScreen(kind) {
+    const flash = document.getElementById('screen-flash');
+    if (!flash) return;
+    flash.className = `screen-flash ${kind}`;
+    void flash.offsetWidth;
+    window.setTimeout(() => {
+      flash.className = 'screen-flash hidden';
+    }, 360);
+  }
+
+  function pulseWorld(kind) {
+    els.world.classList.remove('pulse-good', 'pulse-bad');
+    void els.world.offsetWidth;
+    els.world.classList.add(kind === 'bad' ? 'pulse-bad' : 'pulse-good');
+    window.setTimeout(() => {
+      els.world.classList.remove('pulse-good', 'pulse-bad');
+    }, 360);
+  }
+
   function showCenterMessage(text, duration = 1200) {
     els.centerMessage.textContent = text;
     els.centerMessage.classList.remove('hidden');
@@ -958,10 +1081,14 @@
     state.balloons = [];
     els.avatarCursor.classList.add('hidden');
 
+    const wasNewBest = savePersonalBest(state.score);
     const highlightId = await addScoreToLeaderboard();
     state.currentHighlightId = highlightId;
     els.finalScore.textContent = state.score.toLocaleString();
     els.finalAvatar.innerHTML = avatarMarkup(state.player.avatarKey, state.player.name);
+    updateFinalResultMessage(wasNewBest);
+    state.lastShareText = buildShareText();
+    if (els.shareStatus) els.shareStatus.textContent = '';
     renderAchievements();
     renderLeaderboard(els.finalLeaderboardList, highlightId);
     showScreen('gameOver');
@@ -970,9 +1097,12 @@
   function renderAchievements() {
     const badges = [];
 
+    if (state.newPersonalBest) badges.push('🏆 New Personal Best');
     if (state.score >= 10000) badges.push('🎈 10 Balloon Hero');
     if (state.mistakes === 0) badges.push('💎 No Mistakes');
+    if (state.misses === 0) badges.push('🦖 Dino Dodger');
     if (state.bestCombo >= 5) badges.push('🔥 Combo Master');
+    if (state.bestCombo >= 10) badges.push('🌟 Super Combo');
     if (state.level >= 3) badges.push('⚡ Fast Tapper');
     if (!badges.length) badges.push('⭐ Addition Star');
 
@@ -1065,6 +1195,140 @@
     resetSoftState();
     showScreen('start');
   });
+
+  if (els.shareScore) els.shareScore.addEventListener('click', shareScore);
+  if (els.downloadCard) els.downloadCard.addEventListener('click', downloadScoreCard);
+  if (els.copyChallenge) els.copyChallenge.addEventListener('click', copyChallenge);
+
+
+  function updateFinalResultMessage(wasNewBest) {
+    const target = getNextTarget(state.score);
+    const parts = [];
+    if (wasNewBest) parts.push('🏆 New personal best!');
+    parts.push(`Next target: ${target.toLocaleString()} points.`);
+    parts.push('Challenge a friend to beat your score.');
+    if (els.finalResultMessage) {
+      els.finalResultMessage.textContent = parts.join(' ');
+    }
+  }
+
+  function buildShareText() {
+    const name = state.player ? state.player.name : 'I';
+    const score = Number(state.score || 0).toLocaleString();
+    const combo = Number(state.bestCombo || 0).toLocaleString();
+    const url = location.href.split('#')[0];
+    return `${name} scored ${score} points in TOTAL IS 10! Best combo: ${combo}. Can you beat this score? ${url}`;
+  }
+
+  async function shareScore() {
+    const text = state.lastShareText || buildShareText();
+    const title = 'TOTAL IS 10 Score Challenge';
+
+    try {
+      if (navigator.share) {
+        await navigator.share({ title, text, url: location.href.split('#')[0] });
+        setShareStatus('Score shared!');
+      } else if (navigator.clipboard) {
+        await navigator.clipboard.writeText(text);
+        setShareStatus('Challenge copied to clipboard!');
+      } else {
+        setShareStatus(text);
+      }
+    } catch (error) {
+      setShareStatus('Sharing was cancelled or blocked.');
+    }
+  }
+
+  async function copyChallenge() {
+    const text = state.lastShareText || buildShareText();
+    try {
+      if (navigator.clipboard) {
+        await navigator.clipboard.writeText(text);
+        setShareStatus('Challenge copied to clipboard!');
+      } else {
+        setShareStatus(text);
+      }
+    } catch (error) {
+      setShareStatus('Could not copy automatically. You can share your score manually.');
+    }
+  }
+
+  function setShareStatus(message) {
+    if (els.shareStatus) els.shareStatus.textContent = message;
+  }
+
+  function downloadScoreCard() {
+    const canvas = createScoreCardCanvas();
+    const link = document.createElement('a');
+    link.download = `total-is-10-score-${Date.now()}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+    setShareStatus('Score card downloaded!');
+  }
+
+  function createScoreCardCanvas() {
+    const canvas = document.createElement('canvas');
+    canvas.width = 1080;
+    canvas.height = 1080;
+    const ctx = canvas.getContext('2d');
+
+    const gradient = ctx.createLinearGradient(0, 0, 1080, 1080);
+    gradient.addColorStop(0, '#8ee8ff');
+    gradient.addColorStop(0.45, '#ff9bda');
+    gradient.addColorStop(1, '#ffe566');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, 1080, 1080);
+
+    ctx.fillStyle = 'rgba(255,255,255,0.88)';
+    roundRect(ctx, 80, 90, 920, 900, 54);
+    ctx.fill();
+
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#ff2ea3';
+    ctx.font = '900 72px Arial, sans-serif';
+    ctx.fillText('TOTAL IS 10', 540, 190);
+
+    ctx.fillStyle = '#7b3ff2';
+    ctx.font = '800 38px Arial, sans-serif';
+    ctx.fillText('එකතුව 10  •  மொத்தம் 10', 540, 245);
+
+    ctx.fillStyle = '#3d2256';
+    ctx.font = '900 44px Arial, sans-serif';
+    ctx.fillText(state.player ? state.player.name : 'Player', 540, 340);
+
+    ctx.fillStyle = '#ff2ea3';
+    ctx.font = '900 116px Arial, sans-serif';
+    ctx.fillText(Number(state.score || 0).toLocaleString(), 540, 485);
+
+    ctx.fillStyle = '#3d2256';
+    ctx.font = '800 34px Arial, sans-serif';
+    ctx.fillText('points', 540, 535);
+
+    ctx.font = '800 34px Arial, sans-serif';
+    ctx.fillText(`Best Combo: ${Number(state.bestCombo || 0).toLocaleString()}`, 540, 615);
+    ctx.fillText(`School: ${state.player ? state.player.school : ''}`, 540, 670);
+    ctx.fillText(`Grade: ${state.player ? state.player.grade : ''}`, 540, 725);
+
+    ctx.fillStyle = '#08724a';
+    ctx.font = '900 34px Arial, sans-serif';
+    ctx.fillText('Can you beat my score?', 540, 830);
+
+    ctx.fillStyle = '#7b3ff2';
+    ctx.font = '800 26px Arial, sans-serif';
+    ctx.fillText(location.hostname || 'Total Is 10', 540, 895);
+
+    return canvas;
+  }
+
+  function roundRect(ctx, x, y, width, height, radius) {
+    ctx.beginPath();
+    ctx.moveTo(x + radius, y);
+    ctx.arcTo(x + width, y, x + width, y + height, radius);
+    ctx.arcTo(x + width, y + height, x, y + height, radius);
+    ctx.arcTo(x, y + height, x, y, radius);
+    ctx.arcTo(x, y, x + width, y, radius);
+    ctx.closePath();
+  }
 
   function resetSoftState() {
     window.clearTimeout(state.introTimer);

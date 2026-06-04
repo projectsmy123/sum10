@@ -1,63 +1,72 @@
-# Addition of 10 Balloon Game - DOM v5
+# Total Is 10 — Balloon Game
 
-This version keeps the working DOM-based tap system and adds:
+This is a mobile-friendly educational game for children.
 
-- A visible How to Play screen.
-- All addition bonds that make 10.
-- Chaotic Brownian-style balloon movement.
-- Cute cartoon dinosaurs at the bottom.
-- Funny dinosaur chewing animation when a correct balloon is missed.
-- Dinosaur says “Yum yum yummy!” with extra funny sound effects.
-- Six generated image avatars in `assets/avatars/`.
-- Selected avatar appears in the picker, leaderboard, final screen, and as the in-game pointer.
-- Player name overlay appears on the avatar outfit.
+## Current version: v19 full rewrite
 
-Upload the full contents of this folder to the GitHub repository root:
+Features included:
+
+- Overall real-time Firebase leaderboard
+- No daily leaderboard reset
+- No leaderboard filtering
+- Name, school, grade, and avatar selection
+- Avatar labels:
+  - Boys: Newton, Pythagoras, Euclid
+  - Girls: Sophie, Emmy, Maria
+- Short trilingual How to Play screen
+- Fixed trilingual title:
+  - TOTAL IS 10
+  - එකතුව 10
+  - மொத்தம் 10
+- Chaotic balloon movement
+- Correct balloons are addition bonds of 10
+- Correct tap: avatar pricks balloon, hearts appear, +1000 points
+- Wrong tap: thumbs-down
+- Correct balloon reaching bottom: dinosaur eats it and says “Yum yum yummy!”
+- Game over after 5 dinosaur eats or 5 wrong taps
+- Difficulty increases every 30 seconds
+- Superhero avatar follows the touch/mouse pointer
+- Nitro fire appears from avatar movement
+- Overall top 10 leaderboard appears before and after gameplay
+
+## Firebase
+
+The game uses Cloud Firestore collection:
+
+```text
+scores
+```
+
+The Firebase config is already inside `game.js`.
+
+Upload to GitHub root:
 
 ```text
 index.html
 style.css
 game.js
 README.md
+FIREBASE_SETUP.md
 assets/
 ```
 
-Do not upload only the HTML/CSS/JS files, because v5 needs the avatar images inside `assets/avatars/`.
+Do not skip `assets/`.
 
 
-V7 updates:
-- Replaced avatars with superhero flying avatars.
-- Player name stays visible on the avatar clothing during gameplay.
-- Added nitro-style fire trail from the avatar legs while moving.
-- Added finger-prick pop effect on balloon taps.
-
-V8 updates:
-- Finger-prick impact made much more visible with impact ring, spark burst, and PRICK label.
-- Nitro fire is now larger, more colorful, and more dramatic with extra glow and more particles.
-
-V9 updates:
-- Added 3 text lines on each dinosaur body: English, Tamil, and Sinhala message about loving to eat 10s.
-
-V10 updates:
-- Swapped avatar art to transparent-background superhero cutouts, so no white box appears during play.
-- Removed the extra hand/finger overlay.
-- Balloon prick is now performed by the avatar image's own pointed finger.
+V20 Stage 3 polish:
+- Keeps the overall Firebase leaderboard unchanged.
+- Adds combo display in the HUD.
+- Adds stronger correct-tap effects: hearts, candy burst, sparkles, praise badge, score badge.
+- Adds stronger wrong-tap feedback: thumbs-down, Find 10 text, red flash, small shake.
+- Adds level-up confetti and screen flash.
+- Adds clearer dinosaur-eating feedback.
+- Improves game background and balloon gloss for a more polished kids-game feel.
 
 
-Stage 2 updates:
-- Added Firebase Firestore support for a real shared leaderboard.
-- Added localStorage fallback when Firebase config is not inserted yet.
-- Added `FIREBASE_SETUP.md` with setup instructions and Firestore security rules.
-
-
-V12 Firebase-configured update:
-- Firebase web app config has been inserted into `game.js`.
-- Firestore collection name is `scores`.
-- The game listens to Firestore in real time for the top 10 leaderboard.
-- The game saves each completed score to Firestore.
-- If Firestore is not enabled or rules are missing, it falls back to the local browser leaderboard.
-
-
-V13 Firebase fix:
-- Added the missing FIREBASE_CONFIG constant to game.js.
-- Added clearer Firebase error messages on leaderboard fallback.
+V21 shareable polish:
+- Adds personal best tracking on the current device.
+- Adds next-target message on the final screen.
+- Adds Share Score button using the Web Share API where available.
+- Adds Copy Challenge fallback.
+- Adds Download Score Card as PNG.
+- Adds stronger replay-loop messaging.

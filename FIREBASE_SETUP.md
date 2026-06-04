@@ -1,29 +1,22 @@
-# Firebase Setup for the Real-Time Leaderboard
+# Firebase Setup — Overall Real-Time Leaderboard
 
-This version already includes your Firebase web app config in `game.js`.
+This game uses Cloud Firestore for the overall leaderboard.
 
-## Firebase Project
+## Firestore path
 
 ```text
-projectId: addition-of-10-game
-collection: scores
+scores/{scoreId}
 ```
 
-## What you still need to do in Firebase Console
+## Firestore rules
 
-### 1. Create Firestore Database
+Go to:
 
-1. Open Firebase Console.
-2. Open your project: `addition-of-10-game`.
-3. Go to **Build → Firestore Database**.
-4. Click **Create database**.
-5. Choose **Production mode**.
-6. Choose your preferred location.
-7. Click **Enable**.
+```text
+Firebase Console → Firestore Database → Rules
+```
 
-### 2. Add Firestore Rules
-
-Go to **Firestore Database → Rules** and paste this:
+Paste this and click **Publish**:
 
 ```js
 rules_version = '2';
@@ -78,45 +71,12 @@ service cloud.firestore {
 }
 ```
 
-Then click **Publish**.
+## Manual leaderboard reset
 
-## GitHub Upload
+No automatic reset is included.
 
-Upload these to your repository root:
+To reset scores manually:
 
-```text
-index.html
-style.css
-game.js
-README.md
-FIREBASE_SETUP.md
-assets/
-```
-
-Do not skip `assets/`.
-
-## Test
-
-1. Open the GitHub Pages game on two devices.
-2. Play and finish a game on one device.
-3. The score should appear in the top 10 leaderboard on the other device.
-
-If Firebase is not ready, the game will temporarily use the browser's local leaderboard.
-
-
-## V13 Fix
-
-This package fixes the missing `FIREBASE_CONFIG` constant inside `game.js`.
-
-Expected success message on the game leaderboard screen:
-
-```text
-Online leaderboard is live. Game starts soon...
-```
-
-If it still says local leaderboard, check:
-
-1. Firestore Database is created.
-2. Rules are published.
-3. GitHub Pages has the latest `index.html`, `style.css`, `game.js`, and `assets/`.
-4. Browser cache is cleared with Ctrl + F5.
+1. Go to **Firestore Database → Data**.
+2. Open the `scores` collection.
+3. Delete score documents.

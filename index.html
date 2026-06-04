@@ -60,53 +60,19 @@
     </section>
 
     <section id="tutorial-screen" class="screen">
-      <div class="card tutorial-card">
+      <div class="card tutorial-card simple-tutorial-card">
         <h2>How to Play</h2>
-        <div class="tutorial-grid">
-          <div class="tutorial-step good">
-            <div class="demo-balloon">4 + 6</div>
-            <h3>Tap balloons that make 10</h3>
-            <p>When you tap the correct balloon, hearts will pop out and you get points.</p>
-          </div>
-          <div class="tutorial-step bad">
-            <div class="demo-balloon wrong">3 + 5</div>
-            <h3>Do not tap other balloons</h3>
-            <p>If you tap the wrong balloon, a thumbs-down appears and you lose one mistake heart.</p>
-          </div>
-          <div class="tutorial-step dino-tip">
-            <div class="mini-dino-wrap">
-              <div class="mini-dino cute-mini-dino" aria-hidden="true">
-                <svg viewBox="0 0 240 170">
-                  <path class="dino-tail" d="M58 101 C22 102 9 76 34 59 C53 46 70 62 76 82 Z" />
-                  <path class="dino-body" d="M58 104 C60 64 96 40 141 47 C184 54 210 82 202 116 C194 150 146 159 100 150 C70 144 52 127 58 104 Z" />
-                  <ellipse class="dino-belly" cx="124" cy="112" rx="47" ry="33" />
-                  <path class="dino-head" d="M154 52 C169 28 207 28 224 50 C241 72 228 104 197 109 C171 113 151 96 147 74 C146 66 148 58 154 52 Z" />
-                  <path class="dino-jaw" d="M168 91 C184 106 215 105 231 84 C230 112 197 126 168 111 C158 106 158 97 168 91 Z" />
-                  <ellipse class="dino-snout" cx="210" cy="78" rx="23" ry="15" />
-                  <circle class="dino-eye-white" cx="188" cy="58" r="13" />
-                  <circle class="dino-eye" cx="191" cy="60" r="6" />
-                  <circle class="dino-eye-shine" cx="188" cy="56" r="2.6" />
-                  <circle class="dino-blush" cx="174" cy="80" r="7" />
-                  <circle class="dino-nostril" cx="221" cy="75" r="3" />
-                  <path class="dino-mouth" d="M190 91 C203 97 220 92 230 82" />
-                  <path class="dino-spikes" d="M86 55 l11 -18 l10 18 l13 -22 l12 22 l15 -18 l10 23" />
-                </svg>
-              </div>
-              <div class="demo-balloon tiny">8 + 2</div>
-            </div>
-            <h3>Do not miss 10 balloons</h3>
-            <p>If a correct balloon reaches the dinosaurs, they eat it and say “Yummy!”</p>
-          </div>
+
+        <div class="simple-instructions">
+          <p><strong>English:</strong> You have to collect only the balloons that add up to 10 before the dinosaurs eat them.</p>
+          <p><strong>සිංහල:</strong> ඩයිනෝසෝරයන් ඒවා කන්න කලින් එකතුව 10 වන බැලූන පමණක් එකතු කරන්න.</p>
+          <p><strong>தமிழ்:</strong> டைனோசார்கள் அவற்றை சாப்பிடுவதற்கு முன், கூட்டுத்தொகை 10 ஆகும் பலூன்களை மட்டும் சேகரிக்க வேண்டும்.</p>
         </div>
 
-        <div class="bond-card">
-          <h3>All addition bonds that make 10</h3>
-          <div id="bond-list" class="bond-list"></div>
-        </div>
-
-        <button id="tutorial-start-button" class="primary-button" type="button">I Know How to Play</button>
+        <button id="tutorial-start-button" class="primary-button start-button" type="button">Start</button>
       </div>
     </section>
+
 
     <section id="leaderboard-screen" class="screen">
       <div class="card leaderboard-card">
@@ -127,6 +93,14 @@
             <span>Level</span>
             <strong id="level-value">1</strong>
           </div>
+          <div class="ui-box combo-ui">
+            <span>Combo</span>
+            <strong id="combo-value">0</strong>
+          </div>
+          <div class="ui-box best-ui">
+            <span>Best</span>
+            <strong id="best-value">0</strong>
+          </div>
           <div class="ui-box wide">
             <span>Dino Eats</span>
             <strong id="misses-value">⚪ ⚪ ⚪ ⚪ ⚪</strong>
@@ -139,6 +113,7 @@
 
         <div id="countdown" class="countdown hidden">3</div>
         <div id="center-message" class="center-message hidden"></div>
+        <div id="screen-flash" class="screen-flash hidden"></div>
         <div id="balloon-layer"></div>
         <div id="effect-layer"></div>
 
@@ -218,7 +193,15 @@
         <div id="final-avatar" class="final-avatar"></div>
         <p class="final-score-label">Your Score</p>
         <p id="final-score" class="final-score">0</p>
+        <p id="final-result-message" class="final-result-message"></p>
         <div id="achievement-list" class="achievement-list"></div>
+
+        <div class="share-panel">
+          <button id="share-score-button" class="share-button" type="button">Share Score</button>
+          <button id="download-card-button" class="share-button secondary" type="button">Download Score Card</button>
+          <button id="copy-challenge-button" class="share-button secondary" type="button">Copy Challenge</button>
+        </div>
+        <p id="share-status" class="share-status"></p>
         <h3>🏆 Top 10 Players</h3>
         <div id="final-leaderboard-list" class="leaderboard-list compact"></div>
         <button id="play-again-button" class="primary-button" type="button">Play Again</button>
