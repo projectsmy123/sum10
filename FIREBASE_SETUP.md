@@ -102,3 +102,21 @@ Do not skip `assets/`.
 3. The score should appear in the top 10 leaderboard on the other device.
 
 If Firebase is not ready, the game will temporarily use the browser's local leaderboard.
+
+
+## V13 Fix
+
+This package fixes the missing `FIREBASE_CONFIG` constant inside `game.js`.
+
+Expected success message on the game leaderboard screen:
+
+```text
+Online leaderboard is live. Game starts soon...
+```
+
+If it still says local leaderboard, check:
+
+1. Firestore Database is created.
+2. Rules are published.
+3. GitHub Pages has the latest `index.html`, `style.css`, `game.js`, and `assets/`.
+4. Browser cache is cleared with Ctrl + F5.

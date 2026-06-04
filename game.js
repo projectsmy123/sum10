@@ -2,6 +2,17 @@
   'use strict';
 
   const STORAGE_KEY = 'additionOf10LeaderboardDomV5';
+  const FIREBASE_CONFIG = {
+    apiKey: "AIzaSyDSs10zLdUvYiLm5wxxiPJjkCUXAOmtmJc",
+    authDomain: "addition-of-10-game.firebaseapp.com",
+    projectId: "addition-of-10-game",
+    storageBucket: "addition-of-10-game.firebasestorage.app",
+    messagingSenderId: "880681338297",
+    appId: "1:880681338297:web:5f9ce0fd149b2fd275e268"
+  };
+
+  const FIREBASE_COLLECTION = 'scores';
+
   const MAX_MISSES = 5;
   const MAX_MISTAKES = 5;
   const CORRECT_POINTS = 1000;
@@ -185,7 +196,7 @@
 
     if (!window.firebase || !window.firebase.firestore) {
       state.firebaseReady = false;
-      state.firebaseError = 'Firebase SDK did not load. Using local leaderboard.';
+      state.firebaseError = 'Firebase SDK did not load. Check index.html scripts. Using local leaderboard.';
       state.onlineLeaderboard = getLocalLeaderboard();
       return;
     }
@@ -200,7 +211,7 @@
       startLeaderboardListener();
     } catch (error) {
       state.firebaseReady = false;
-      state.firebaseError = 'Firebase could not start. Using local leaderboard.';
+      state.firebaseError = `Firebase could not start: ${error.code || error.message || 'unknown error'}. Using local leaderboard.`;
       state.onlineLeaderboard = getLocalLeaderboard();
       console.warn('Firebase init error:', error);
     }
@@ -225,7 +236,7 @@
         renderLeaderboard(els.finalLeaderboardList, state.currentHighlightId);
       }, error => {
         state.firebaseReady = false;
-        state.firebaseError = 'Could not read Firebase leaderboard. Using local leaderboard.';
+        state.firebaseError = `Could not read Firebase leaderboard: ${error.code || error.message || 'unknown error'}. Check Firestore database and rules. Using local leaderboard.`;
         state.onlineLeaderboard = getLocalLeaderboard();
         renderLeaderboard(els.leaderboardList, state.currentHighlightId);
         renderLeaderboard(els.finalLeaderboardList, state.currentHighlightId);
@@ -296,7 +307,7 @@
       return docRef.id;
     } catch (error) {
       console.warn('Firebase score save error:', error);
-      state.firebaseError = 'Could not save to Firebase. Saved locally instead.';
+      state.firebaseError = `Could not save to Firebase: ${error.code || error.message || 'unknown error'}. Saved locally instead.`;
       return saveLocalScore(entry);
     }
   }

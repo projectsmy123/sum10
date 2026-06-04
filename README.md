@@ -56,3 +56,8 @@ V12 Firebase-configured update:
 - The game listens to Firestore in real time for the top 10 leaderboard.
 - The game saves each completed score to Firestore.
 - If Firestore is not enabled or rules are missing, it falls back to the local browser leaderboard.
+
+
+V13 Firebase fix:
+- Added the missing FIREBASE_CONFIG constant to game.js.
+- Added clearer Firebase error messages on leaderboard fallback.
