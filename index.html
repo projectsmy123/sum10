@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#ff7ac8" />
+  <title>Addition of 10 Balloon Game</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="game-title-bar" aria-label="Game title">
+    <div class="title-line title-en">TOTAL IS 10</div>
+    <div class="title-line title-si">එකතුව 10</div>
+    <div class="title-line title-ta">மொத்தம் 10</div>
+  </div>
+
+  <main id="app">
+    <section id="start-screen" class="screen active">
+      <div class="card start-card">
+        <div class="logo-badge">🎈</div>
+        <h1>Addition of 10</h1>
+        <p class="subtitle">Tap only the balloons that make 10.</p>
+
+        <form id="player-form" autocomplete="off">
+          <label>
+            <span>Name</span>
+            <input id="player-name" name="name" type="text" maxlength="18" required placeholder="Enter name" />
+          </label>
+
+          <label>
+            <span>School</span>
+            <input id="player-school" name="school" type="text" maxlength="36" required placeholder="Enter school" />
+          </label>
+
+          <label>
+            <span>Grade</span>
+            <select id="player-grade" name="grade" required>
+              <option value="">Choose grade</option>
+              <option>Grade 1</option>
+              <option>Grade 2</option>
+              <option>Grade 3</option>
+              <option>Grade 4</option>
+              <option>Grade 5</option>
+            </select>
+          </label>
+
+          <fieldset class="avatar-builder">
+            <legend>Choose Avatar</legend>
+            <div id="avatar-options" class="avatar-options" aria-label="Avatar choices"></div>
+          </fieldset>
+
+          <div class="settings-row">
+            <button id="voice-toggle" type="button" class="mini-toggle" aria-pressed="true">Voice: On</button>
+            <button id="sfx-toggle" type="button" class="mini-toggle" aria-pressed="true">SFX: On</button>
+          </div>
+
+          <button class="primary-button" type="submit">Continue</button>
+        </form>
+      </div>
+    </section>
+
+    <section id="tutorial-screen" class="screen">
+      <div class="card tutorial-card">
+        <h2>How to Play</h2>
+        <div class="tutorial-grid">
+          <div class="tutorial-step good">
+            <div class="demo-balloon">4 + 6</div>
+            <h3>Tap balloons that make 10</h3>
+            <p>When you tap the correct balloon, hearts will pop out and you get points.</p>
+          </div>
+          <div class="tutorial-step bad">
+            <div class="demo-balloon wrong">3 + 5</div>
+            <h3>Do not tap other balloons</h3>
+            <p>If you tap the wrong balloon, a thumbs-down appears and you lose one mistake heart.</p>
+          </div>
+          <div class="tutorial-step dino-tip">
+            <div class="mini-dino-wrap">
+              <div class="mini-dino cute-mini-dino" aria-hidden="true">
+                <svg viewBox="0 0 240 170">
+                  <path class="dino-tail" d="M58 101 C22 102 9 76 34 59 C53 46 70 62 76 82 Z" />
+                  <path class="dino-body" d="M58 104 C60 64 96 40 141 47 C184 54 210 82 202 116 C194 150 146 159 100 150 C70 144 52 127 58 104 Z" />
+                  <ellipse class="dino-belly" cx="124" cy="112" rx="47" ry="33" />
+                  <path class="dino-head" d="M154 52 C169 28 207 28 224 50 C241 72 228 104 197 109 C171 113 151 96 147 74 C146 66 148 58 154 52 Z" />
+                  <path class="dino-jaw" d="M168 91 C184 106 215 105 231 84 C230 112 197 126 168 111 C158 106 158 97 168 91 Z" />
+                  <ellipse class="dino-snout" cx="210" cy="78" rx="23" ry="15" />
+                  <circle class="dino-eye-white" cx="188" cy="58" r="13" />
+                  <circle class="dino-eye" cx="191" cy="60" r="6" />
+                  <circle class="dino-eye-shine" cx="188" cy="56" r="2.6" />
+                  <circle class="dino-blush" cx="174" cy="80" r="7" />
+                  <circle class="dino-nostril" cx="221" cy="75" r="3" />
+                  <path class="dino-mouth" d="M190 91 C203 97 220 92 230 82" />
+                  <path class="dino-spikes" d="M86 55 l11 -18 l10 18 l13 -22 l12 22 l15 -18 l10 23" />
+                </svg>
+              </div>
+              <div class="demo-balloon tiny">8 + 2</div>
+            </div>
+            <h3>Do not miss 10 balloons</h3>
+            <p>If a correct balloon reaches the dinosaurs, they eat it and say “Yummy!”</p>
+          </div>
+        </div>
+
+        <div class="bond-card">
+          <h3>All addition bonds that make 10</h3>
+          <div id="bond-list" class="bond-list"></div>
+        </div>
+
+        <button id="tutorial-start-button" class="primary-button" type="button">I Know How to Play</button>
+      </div>
+    </section>
+
+    <section id="leaderboard-screen" class="screen">
+      <div class="card leaderboard-card">
+        <h2>🏆 Top 10 Players</h2>
+        <div id="leaderboard-list" class="leaderboard-list"></div>
+        <p id="leaderboard-message" class="small-note">Game starts shortly...</p>
+      </div>
+    </section>
+
+    <section id="game-screen" class="screen game-screen">
+      <div id="game-world" aria-label="Game area">
+        <div id="game-ui">
+          <div class="ui-box score-box">
+            <span>Score</span>
+            <strong id="score-value">0</strong>
+          </div>
+          <div class="ui-box">
+            <span>Level</span>
+            <strong id="level-value">1</strong>
+          </div>
+          <div class="ui-box wide">
+            <span>Dino Eats</span>
+            <strong id="misses-value">⚪ ⚪ ⚪ ⚪ ⚪</strong>
+          </div>
+          <div class="ui-box wide">
+            <span>Mistakes</span>
+            <strong id="mistakes-value">⚪ ⚪ ⚪ ⚪ ⚪</strong>
+          </div>
+        </div>
+
+        <div id="countdown" class="countdown hidden">3</div>
+        <div id="center-message" class="center-message hidden"></div>
+        <div id="balloon-layer"></div>
+        <div id="effect-layer"></div>
+
+        <div id="left-dino" class="dino dino-left" aria-hidden="true">
+          <div class="dino-bubble">Yummy!</div>
+          <div class="dino-body-text" aria-hidden="true">
+            <span>I love eating 10s</span>
+            <span>நான் 10-களை சாப்பிட மிகவும் விரும்புகிறேன்</span>
+            <span>මම 10 ඒවා කන්න හුඟක් කැමතියි</span>
+          </div>
+          <svg viewBox="0 0 240 170" role="img" aria-label="Cute cartoon dinosaur">
+            <path class="dino-tail" d="M58 101 C22 102 9 76 34 59 C53 46 70 62 76 82 Z" />
+            <path class="dino-body" d="M58 104 C60 64 96 40 141 47 C184 54 210 82 202 116 C194 150 146 159 100 150 C70 144 52 127 58 104 Z" />
+            <ellipse class="dino-belly" cx="124" cy="112" rx="47" ry="33" />
+            <path class="dino-head" d="M154 52 C169 28 207 28 224 50 C241 72 228 104 197 109 C171 113 151 96 147 74 C146 66 148 58 154 52 Z" />
+            <path class="dino-jaw" d="M168 91 C184 106 215 105 231 84 C230 112 197 126 168 111 C158 106 158 97 168 91 Z" />
+            <ellipse class="dino-snout" cx="210" cy="78" rx="23" ry="15" />
+            <circle class="dino-eye-white" cx="188" cy="58" r="13" />
+            <circle class="dino-eye" cx="191" cy="60" r="6" />
+            <circle class="dino-eye-shine" cx="188" cy="56" r="2.6" />
+            <circle class="dino-blush" cx="174" cy="80" r="7" />
+            <circle class="dino-nostril" cx="221" cy="75" r="3" />
+            <path class="dino-mouth" d="M190 91 C203 97 220 92 230 82" />
+            <path class="dino-teeth" d="M188 94 l5 8 l5 -8 l5 8 l5 -8" />
+            <circle class="dino-spot" cx="102" cy="69" r="6" />
+            <circle class="dino-spot" cx="126" cy="61" r="5" />
+            <circle class="dino-spot" cx="150" cy="72" r="6" />
+            <path class="dino-leg" d="M83 139 l-7 24 h27 l7 -22" />
+            <path class="dino-leg" d="M145 139 l6 24 h27 l-9 -27" />
+            <path class="dino-foot" d="M71 159 h35" />
+            <path class="dino-foot" d="M146 159 h35" />
+            <path class="dino-arm" d="M151 102 C136 109 135 122 151 121" />
+            <path class="dino-spikes" d="M86 55 l11 -18 l10 18 l13 -22 l12 22 l15 -18 l10 23" />
+          </svg>
+        </div>
+
+        <div id="right-dino" class="dino dino-right" aria-hidden="true">
+          <div class="dino-bubble">Yummy!</div>
+          <div class="dino-body-text" aria-hidden="true">
+            <span>I love eating 10s</span>
+            <span>நான் 10-களை சாப்பிட மிகவும் விரும்புகிறேன்</span>
+            <span>මම 10 ඒවා කන්න හුඟක් කැමතියි</span>
+          </div>
+          <svg viewBox="0 0 240 170" role="img" aria-label="Cute cartoon dinosaur">
+            <path class="dino-tail" d="M58 101 C22 102 9 76 34 59 C53 46 70 62 76 82 Z" />
+            <path class="dino-body" d="M58 104 C60 64 96 40 141 47 C184 54 210 82 202 116 C194 150 146 159 100 150 C70 144 52 127 58 104 Z" />
+            <ellipse class="dino-belly" cx="124" cy="112" rx="47" ry="33" />
+            <path class="dino-head" d="M154 52 C169 28 207 28 224 50 C241 72 228 104 197 109 C171 113 151 96 147 74 C146 66 148 58 154 52 Z" />
+            <path class="dino-jaw" d="M168 91 C184 106 215 105 231 84 C230 112 197 126 168 111 C158 106 158 97 168 91 Z" />
+            <ellipse class="dino-snout" cx="210" cy="78" rx="23" ry="15" />
+            <circle class="dino-eye-white" cx="188" cy="58" r="13" />
+            <circle class="dino-eye" cx="191" cy="60" r="6" />
+            <circle class="dino-eye-shine" cx="188" cy="56" r="2.6" />
+            <circle class="dino-blush" cx="174" cy="80" r="7" />
+            <circle class="dino-nostril" cx="221" cy="75" r="3" />
+            <path class="dino-mouth" d="M190 91 C203 97 220 92 230 82" />
+            <path class="dino-teeth" d="M188 94 l5 8 l5 -8 l5 8 l5 -8" />
+            <circle class="dino-spot" cx="102" cy="69" r="6" />
+            <circle class="dino-spot" cx="126" cy="61" r="5" />
+            <circle class="dino-spot" cx="150" cy="72" r="6" />
+            <path class="dino-leg" d="M83 139 l-7 24 h27 l7 -22" />
+            <path class="dino-leg" d="M145 139 l6 24 h27 l-9 -27" />
+            <path class="dino-foot" d="M71 159 h35" />
+            <path class="dino-foot" d="M146 159 h35" />
+            <path class="dino-arm" d="M151 102 C136 109 135 122 151 121" />
+            <path class="dino-spikes" d="M86 55 l11 -18 l10 18 l13 -22 l12 22 l15 -18 l10 23" />
+          </svg>
+        </div>
+
+        <div id="avatar-cursor" class="avatar-cursor hidden" aria-hidden="true"></div>
+      </div>
+    </section>
+
+    <section id="game-over-screen" class="screen">
+      <div class="card game-over-card">
+        <h2>Game Over</h2>
+        <div id="final-avatar" class="final-avatar"></div>
+        <p class="final-score-label">Your Score</p>
+        <p id="final-score" class="final-score">0</p>
+        <div id="achievement-list" class="achievement-list"></div>
+        <h3>🏆 Top 10 Players</h3>
+        <div id="final-leaderboard-list" class="leaderboard-list compact"></div>
+        <button id="play-again-button" class="primary-button" type="button">Play Again</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- Firebase SDK for Stage 2 real-time leaderboard -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
